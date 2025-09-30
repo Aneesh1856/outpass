@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification System Demo - Amity Outpass</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #002D62, #004080);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #FFC300;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 195, 0, 0.3);
+        }
+
+        .demo-card h3 {
+            color: #FFC300;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .demo-button {
+            background: #FFC300;
+            color: #002D62;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+
+        .demo-button:hover {
+            background: #e6b300;
+            transform: translateY(-2px);
+        }
+
+        .demo-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .log-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            height: 300px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .log-entry.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .log-entry.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .log-entry.info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected {
+            background: #28a745;
+        }
+
+        .status-disconnected {
+            background: #dc3545;
+        }
+
+        .config-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .config-section {
+            margin-bottom: 25px;
+        }
+
+        .config-section h4 {
+            color: #FFC300;
+            margin-bottom: 15px;
+        }
+
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+
+        .toggle-switch {
+            width: 50px;
+            height: 25px;
+            background: #ccc;
+            border-radius: 25px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #FFC300;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            width: 21px;
+            height: 21px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(25px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #FFC300;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 Notification System Demo</h1>
+            <p>Test the real-time notification and SMS system for Amity Outpass Management</p>
+            <div class="status-info">
+                <span class="status-indicator status-connected" id="firebase-status"></span>
+                <span>Firebase: <span id="firebase-status-text">Connecting...</span></span>
+                <span style="margin-left: 20px;">
+                    <span class="status-indicator status-disconnected" id="sms-status"></span>
+                    <span>SMS: <span id="sms-status-text">Not configured</span></span>
+                </span>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="total-notifications">0</div>
+                <div class="stat-label">Total Notifications</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="sms-sent">0</div>
+                <div class="stat-label">SMS Sent</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="push-sent">0</div>
+                <div class="stat-label">Push Notifications</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="active-listeners">0</div>
+                <div class="stat-label">Active Listeners</div>
+            </div>
+        </div>
+
+        <div class="demo-grid">
+            <div class="demo-card">
+                <h3>📱 Test Notifications</h3>
+                <p>Simulate different notification scenarios:</p>
+                
+                <button class="demo-button" onclick="testOutpassSubmitted()">
+                    📝 Outpass Submitted
+                </button>
+                
+                <button class="demo-button" onclick="testOutpassApproved()">
+                    ✅ Outpass Approved
+                </button>
+                
+                <button class="demo-button" onclick="testOutpassRejected()">
+                    ❌ Outpass Rejected
+                </button>
+                
+                <button class="demo-button" onclick="testMentorAlert()">
+                    👨‍🏫 Mentor Alert
+                </button>
+
+                <button class="demo-button" onclick="testPushNotification()">
+                    🔔 Browser Push
+                </button>
+                
+                <button class="demo-button" onclick="testSMSService()">
+                    📲 Test SMS
+                </button>
+                
+                <button class="demo-button" onclick="testWhatsAppService()">
+                    💬 Test WhatsApp
+                </button>
+            </div>
+
+            <div class="demo-card">
+                <h3>⚡ Real-time Features</h3>
+                <p>Test real-time database listeners:</p>
+                
+                <button class="demo-button" onclick="startListeners()">
+                    🚀 Start Listeners
+                </button>
+                
+                <button class="demo-button" onclick="stopListeners()">
+                    🛑 Stop Listeners
+                </button>
+                
+                <button class="demo-button" onclick="simulateOutpassChange()">
+                    🔄 Simulate DB Change
+                </button>
+                
+                <button class="demo-button" onclick="clearNotificationHistory()">
+                    🗑️ Clear History
+                </button>
+
+                <button class="demo-button" onclick="requestPermissions()">
+                    🔐 Request Permissions
+                </button>
+                
+                <button class="demo-button" onclick="exportLogs()">
+                    📥 Export Logs
+                </button>
+            </div>
+        </div>
+
+        <div class="config-panel">
+            <h3>⚙️ Configuration</h3>
+            
+            <div class="config-section">
+                <h4>Notification Settings</h4>
+                <div class="config-item">
+                    <span>Real-time notifications</span>
+                    <div class="toggle-switch active" id="toggle-realtime" onclick="toggleSetting('realtime')"></div>
+                </div>
+                <div class="config-item">
+                    <span>SMS notifications</span>
+                    <div class="toggle-switch active" id="toggle-sms" onclick="toggleSetting('sms')"></div>
+                </div>
+                <div class="config-item">
+                    <span>Push notifications</span>
+                    <div class="toggle-switch active" id="toggle-push" onclick="toggleSetting('push')"></div>
+                </div>
+                <div class="config-item">
+                    <span>Notification sounds</span>
+                    <div class="toggle-switch active" id="toggle-sound" onclick="toggleSetting('sound')"></div>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <h4>SMS Provider: <span id="sms-provider">Console</span></h4>
+                <button class="demo-button" onclick="changeSMSProvider('msg91')">MSG91</button>
+                <button class="demo-button" onclick="changeSMSProvider('twilio')">Twilio</button>
+                <button class="demo-button" onclick="changeSMSProvider('textlocal')">TextLocal</button>
+                <button class="demo-button" onclick="changeSMSProvider('console')">Console Only</button>
+            </div>
+        </div>
+
+        <div class="log-container" id="log-container">
+            <div class="log-entry info">
+                <strong>🚀 Notification System Demo Started</strong> - Initialize the system to begin testing
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="notification-config.js"></script>
+    <script src="notification-system.js"></script>
+    <script src="sms-service.js"></script>
+    <script src="whatsapp-service.js"></script>
+
+    <script>
+        // Demo data and state
+        let demoStats = {
+            totalNotifications: 0,
+            smsSent: 0,
+            pushSent: 0,
+            activeListeners: 0
+        };
+
+        let demoSettings = {
+            realtime: true,
+            sms: true,
+            push: true,
+            sound: true
+        };
+
+        let notificationSystem = null;
+        let smsService = null;
+
+        // Initialize demo
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializeDemo();
+        });
+
+        async function initializeDemo() {
+            log('🔄 Initializing demo systems...', 'info');
+            
+            try {
+                // Check Firebase connection
+                if (typeof firebase !== 'undefined') {
+                    document.getElementById('firebase-status').className = 'status-indicator status-connected';
+                    document.getElementById('firebase-status-text').textContent = 'Connected';
+                    log('✅ Firebase connected successfully', 'success');
+                } else {
+                    document.getElementById('firebase-status').className = 'status-indicator status-disconnected';
+                    document.getElementById('firebase-status-text').textContent = 'Disconnected';
+                    log('❌ Firebase not available', 'error');
+                }
+
+                // Initialize services
+                if (window.NotificationSystem) {
+                    notificationSystem = new window.NotificationSystem();
+                    log('✅ Notification system initialized', 'success');
+                }
+
+                if (window.SMSService) {
+                    smsService = new window.SMSService();
+                    updateSMSStatus();
+                    log('✅ SMS service initialized', 'success');
+                }
+
+                // Create demo user session
+                const demoUser = {
+                    key: 'demo_student_001',
+                    username: 'demo.student',
+                    name: 'Demo Student',
+                    enrollment: 'A12345678901',
+                    course: 'B.Tech CSE',
+                    year: '3',
+                    phone: '+91XXXXXXXXXX',
+                    mentorName: 'Dr. Demo Mentor',
+                    role: 'student'
+                };
+
+                sessionStorage.setItem('currentUser', JSON.stringify(demoUser));
+                log('👤 Demo user session created', 'info');
+
+                updateStats();
+                log('🎉 Demo initialization complete!', 'success');
+                
+            } catch (error) {
+                log(`❌ Demo initialization failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Test functions
+        async function testOutpassSubmitted() {
+            log('📝 Testing outpass submission notification...', 'info');
+            
+            const notification = {
+                type: 'outpass_submitted',
+                title: 'Outpass Submitted',
+                message: 'Your outpass request has been submitted successfully',
+                timestamp: new Date().toISOString()
+            };
+
+            if (notificationSystem) {
+                notificationSystem.showNotificationPopup(notification);
+                demoStats.totalNotifications++;
+            }
+
+            if (smsService && demoSettings.sms) {
+                await smsService.sendSMS('+91XXXXXXXXXX', 'Demo: Your outpass has been submitted successfully!');
+                demoStats.smsSent++;
+            }
+
+            // Also test WhatsApp
+            if (window.sendOutpassWhatsApp && demoSettings.sms) {
+                await window.sendOutpassWhatsApp('outpass_submitted', {
+                    studentPhone: '+91XXXXXXXXXX',
+                    studentName: 'Demo Student',
+                    fromDate: 'today',
+                    outpassId: 'DEMO001'
+                });
+            }
+
+            updateStats();
+            log('✅ Outpass submission notification sent', 'success');
+        }
+
+        async function testOutpassApproved() {
+            log('✅ Testing outpass approval notification...', 'info');
+            
+            const notification = {
+                type: 'outpass_approved',
+                title: 'Outpass APPROVED',
+                message: 'Your outpass for today has been approved by Dr. Demo Mentor',
+                timestamp: new Date().toISOString(),
+                mentorComments: 'Have a safe trip!'
+            };
+
+            if (notificationSystem) {
+                notificationSystem.showNotificationPopup(notification);
+                demoStats.totalNotifications++;
+            }
+
+            if (smsService && demoSettings.sms) {
+                await smsService.sendSMS('+91XXXXXXXXXX', 'Great news! Your outpass has been APPROVED. Have a safe trip!');
+                demoStats.smsSent++;
+            }
+
+            updateStats();
+            log('✅ Outpass approval notification sent', 'success');
+        }
+
+        async function testOutpassRejected() {
+            log('❌ Testing outpass rejection notification...', 'info');
+            
+            const notification = {
+                type: 'outpass_rejected',
+                title: 'Outpass REJECTED',
+                message: 'Your outpass request has been rejected by Dr. Demo Mentor',
+                timestamp: new Date().toISOString(),
+                mentorComments: 'Please reschedule for a later date'
+            };
+
+            if (notificationSystem) {
+                notificationSystem.showNotificationPopup(notification);
+                demoStats.totalNotifications++;
+            }
+
+            if (smsService && demoSettings.sms) {
+                await smsService.sendSMS('+91XXXXXXXXXX', 'Your outpass has been rejected. Reason: Please reschedule for a later date');
+                demoStats.smsSent++;
+            }
+
+            updateStats();
+            log('❌ Outpass rejection notification sent', 'success');
+        }
+
+        async function testMentorAlert() {
+            log('👨‍🏫 Testing mentor alert notification...', 'info');
+            
+            const notification = {
+                type: 'mentor_alert',
+                title: 'New Outpass Request',
+                message: 'Demo Student submitted an outpass request for review',
+                timestamp: new Date().toISOString()
+            };
+
+            if (notificationSystem) {
+                notificationSystem.showNotificationPopup(notification);
+                demoStats.totalNotifications++;
+            }
+
+            if (smsService && demoSettings.sms) {
+                await smsService.sendSMS('+91XXXXXXXXXX', 'New outpass request from Demo Student requires your review.');
+                demoStats.smsSent++;
+            }
+
+            updateStats();
+            log('👨‍🏫 Mentor alert notification sent', 'success');
+        }
+
+        async function testPushNotification() {
+            log('🔔 Testing browser push notification...', 'info');
+            
+            if ('Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    new Notification('Demo Push Notification', {
+                        body: 'This is a test browser push notification!',
+                        icon: '/favicon.ico',
+                        tag: 'demo'
+                    });
+                    demoStats.pushSent++;
+                    updateStats();
+                    log('🔔 Browser push notification sent', 'success');
+                } else {
+                    log('⚠️ Browser notifications not permitted', 'error');
+                }
+            } else {
+                log('❌ Browser notifications not supported', 'error');
+            }
+        }
+
+        async function testSMSService() {
+            log('📲 Testing SMS service...', 'info');
+            
+            if (smsService) {
+                const result = await smsService.sendSMS('+91XXXXXXXXXX', 'This is a test SMS from Amity Outpass System!');
+                
+                if (result.success) {
+                    demoStats.smsSent++;
+                    updateStats();
+                    log(`📲 SMS sent successfully via ${result.provider}`, 'success');
+                } else {
+                    log(`❌ SMS failed: ${result.error}`, 'error');
+                }
+            } else {
+                log('❌ SMS service not available', 'error');
+            }
+        }
+
+        async function testWhatsAppService() {
+            log('💬 Testing WhatsApp service...', 'info');
+            
+            if (window.sendOutpassWhatsApp) {
+                const result = await window.sendOutpassWhatsApp('outpass_submitted', {
+                    studentPhone: '+91XXXXXXXXXX',
+                    studentName: 'Demo Student',
+                    fromDate: 'Today',
+                    outpassId: 'DEMO001'
+                });
+                
+                if (result.success) {
+                    demoStats.smsSent++; // Using same counter for simplicity
+                    updateStats();
+                    log(`💬 WhatsApp sent successfully via ${result.provider}`, 'success');
+                } else {
+                    log(`❌ WhatsApp failed: ${result.error}`, 'error');
+                }
+            } else {
+                log('❌ WhatsApp service not available', 'error');
+            }
+        }
+
+        function startListeners() {
+            log('🚀 Starting real-time listeners...', 'info');
+            demoStats.activeListeners = 3;
+            updateStats();
+            log('✅ Listeners started (simulated)', 'success');
+        }
+
+        function stopListeners() {
+            log('🛑 Stopping real-time listeners...', 'info');
+            demoStats.activeListeners = 0;
+            updateStats();
+            log('🛑 Listeners stopped', 'info');
+        }
+
+        function simulateOutpassChange() {
+            log('🔄 Simulating database change...', 'info');
+            
+            setTimeout(() => {
+                const notification = {
+                    type: 'realtime_update',
+                    title: 'Real-time Update',
+                    message: 'Database change detected - outpass status updated',
+                    timestamp: new Date().toISOString()
+                };
+
+                if (notificationSystem) {
+                    notificationSystem.showNotificationPopup(notification);
+                    demoStats.totalNotifications++;
+                    updateStats();
+                }
+
+                log('⚡ Real-time database change simulated', 'success');
+            }, 1000);
+        }
+
+        function clearNotificationHistory() {
+            localStorage.removeItem('notificationHistory');
+            demoStats.totalNotifications = 0;
+            updateStats();
+            log('🗑️ Notification history cleared', 'info');
+        }
+
+        async function requestPermissions() {
+            log('🔐 Requesting browser permissions...', 'info');
+            
+            if ('Notification' in window) {
+                const permission = await Notification.requestPermission();
+                log(`🔐 Notification permission: ${permission}`, permission === 'granted' ? 'success' : 'error');
+            }
+        }
+
+        function exportLogs() {
+            const logs = document.getElementById('log-container').innerText;
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'notification-demo-logs.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            log('📥 Logs exported successfully', 'success');
+        }
+
+        // Configuration functions
+        function toggleSetting(setting) {
+            demoSettings[setting] = !demoSettings[setting];
+            document.getElementById(`toggle-${setting}`).classList.toggle('active');
+            log(`⚙️ ${setting} setting: ${demoSettings[setting] ? 'enabled' : 'disabled'}`, 'info');
+        }
+
+        function changeSMSProvider(provider) {
+            if (smsService) {
+                smsService.provider = provider;
+                document.getElementById('sms-provider').textContent = provider.toUpperCase();
+                updateSMSStatus();
+                log(`📲 SMS provider changed to: ${provider}`, 'info');
+            }
+        }
+
+        // Utility functions
+        function updateStats() {
+            document.getElementById('total-notifications').textContent = demoStats.totalNotifications;
+            document.getElementById('sms-sent').textContent = demoStats.smsSent;
+            document.getElementById('push-sent').textContent = demoStats.pushSent;
+            document.getElementById('active-listeners').textContent = demoStats.activeListeners;
+        }
+
+        function updateSMSStatus() {
+            if (smsService && smsService.provider !== 'console') {
+                document.getElementById('sms-status').className = 'status-indicator status-connected';
+                document.getElementById('sms-status-text').textContent = 'Configured';
+            } else {
+                document.getElementById('sms-status').className = 'status-indicator status-disconnected';
+                document.getElementById('sms-status-text').textContent = 'Console only';
+            }
+        }
+
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Console log as well
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // Auto-refresh stats every 5 seconds
+        setInterval(updateStats, 5000);
+    </script>
+</body>
+</html>

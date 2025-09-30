@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Amity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #002D62;
+            --primary-gold: #FFC300;
+            --light-gray: #f0f2f5;
+            --dark-text: #333;
+            --light-text: #fff;
+            /* Sidebar widths - crucial for this setup */
+            --sidebar-width-collapsed: 80px;
+            --sidebar-width-expanded: 260px;
+            --transition-speed: 0.35s;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: var(--dark-text);
+            display: flex; /* Keeps sidebar and main content side-by-side */
+            transition: background-color 0.5s cubic-bezier(0.4,0,0.2,1), color 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: var(--sidebar-width-collapsed); /* Starts collapsed */
+            background-color: var(--primary-blue);
+            color: var(--light-text);
+            height: 100vh;
+            position: fixed; /* Stays fixed on the left */
+            top: 0;
+            left: 0; /* Always visible */
+            display: flex;
+            flex-direction: column;
+            padding-top: 25px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            overflow: hidden; /* Hides overflowing text */
+            transition: width var(--transition-speed) ease-in-out; /* Smooth width transition */
+            z-index: 10; /* Ensure it stays on top */
+        }
+
+        .sidebar:hover {
+            width: var(--sidebar-width-expanded); /* Expands on hover */
+        }
+
+        .sidebar-header {
+            padding: 0 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            display: flex;
+            justify-content: center; /* Center the icon */
+            align-items: center;
+            height: 40px;
+            /* Icon is always visible, no opacity transition here */
+        }
+
+        /* Styling for the menu icon at the top of the sidebar */
+        .sidebar-header .menu-icon {
+            font-size: 28px;
+            color: var(--primary-gold);
+            cursor: pointer;
+            /* No opacity transition needed as it's always visible */
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 18px 25px;
+            color: var(--light-text);
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 16px;
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+
+        .sidebar-nav a i {
+            margin-right: 25px; /* Margin when expanded */
+            width: 20px;
+            text-align: center;
+            transition: margin-right var(--transition-speed) ease-in-out; /* Smooth icon margin transition */
+        }
+
+        /* Adjust icon margin when sidebar is collapsed */
+        .sidebar:not(:hover) .sidebar-nav a i {
+            margin-right: 0; /* No margin, effectively centering the icon */
+            padding-left: 10px; /* Add padding to center icon when text is hidden */
+            padding-right: 10px;
+        }
+
+        .sidebar-nav a span {
+            opacity: 0; /* Text initially hidden */
+            transition: opacity var(--transition-speed) ease-in-out; /* Smooth fade for text */
+            pointer-events: none; /* Prevent interaction when hidden */
+        }
+
+        /* Show text when sidebar is hovered/expanded */
+        .sidebar:hover .sidebar-nav a span {
+            opacity: 1;
+            pointer-events: auto; /* Allow interaction when visible */
+        }
+
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background-color: var(--primary-gold);
+            color: var(--primary-blue);
+        }
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #ccc;
+            opacity: 0; /* Initially hidden */
+            transition: opacity var(--transition-speed) ease-in-out;
+            white-space: nowrap;
+        }
+        .sidebar:hover .sidebar-footer {
+            opacity: 1;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: var(--sidebar-width-collapsed); /* Initial offset for collapsed sidebar */
+            width: calc(100% - var(--sidebar-width-collapsed)); /* Initial width */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: margin-left var(--transition-speed) ease-in-out, width var(--transition-speed) ease-in-out; /* Smooth transition for main content */
+        }
+
+        .sidebar:hover + .main-content {
+            margin-left: var(--sidebar-width-expanded); /* Adjust margin when sidebar expands */
+            width: calc(100% - var(--sidebar-width-expanded)); /* Adjust width when sidebar expands */
+        }
+
+        /* --- Top Navigation --- */
+        .top-nav {
+            background-color: #fff;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        /* College Logo in Top Navigation */
+        .top-nav .college-logo {
+            height: 40px;
+            max-width: 150px;
+            width: auto;
+            display: block;
+        }
+
+        /* Account Dropdown */
+        .account-dropdown {
+            position: relative;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+        }
+        .account-info {
+            display: flex;
+            align-items: center;
+        }
+        .account-info span {
+            margin-right: 10px;
+            font-weight: 600;
+        }
+        .account-info .fa-user-circle {
+            font-size: 28px;
+            color: var(--primary-blue);
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%) scaleY(0.7);
+            top: calc(100% + 10px);
+            background-color: white;
+            border-radius: 16px;
+            min-width: 280px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s cubic-bezier(0.4,0,0.2,1), transform 0.35s cubic-bezier(0.4,0,0.2,1);
+            transform-origin: top center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        .account-dropdown:hover .dropdown-content {
+            display: block;
+            opacity: 1;
+            transform: translateX(-50%) scaleY(1);
+            pointer-events: auto;
+        }
+        .dropdown-header {
+            padding: 20px;
+            background-color: var(--primary-blue);
+            color: var(--light-text);
+            text-align: center;
+        }
+        .dropdown-header h4 { margin: 0; font-size: 18px; }
+        .dropdown-header p { margin: 5px 0 0; font-size: 14px; color: #eee;}
+        .profile-details { padding: 15px 20px; }
+        .profile-details p { margin: 8px 0; font-size: 14px; }
+        .profile-details p strong { color: var(--primary-blue); }
+        .dropdown-footer {
+            padding: 10px;
+            background-color: var(--light-gray);
+        }
+        .logout-btn {
+            position: static;
+            margin-left: 0;
+            height: 44px;
+            padding: 0 28px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 8px;
+            background-color: var(--primary-gold);
+            color: var(--primary-blue);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            z-index: 2;
+        }
+        .logout-btn:hover {
+            background-color: #e6b300;
+        }
+
+        /* --- Page Content and Form Sizing --- */
+        .container {
+            flex-grow: 1;
+            /* Increased max-width for more space */
+            max-width: 1000px; /* Increased from 900px */
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 50px;
+            /* Can add min-height or height if specific dimensions are needed */
+            min-width: 500px;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+        .card h3 {
+            margin-top: 0;
+            font-size: 22px;
+            color: var(--primary-blue);
+            font-weight: 700;
+            border-bottom: 2px solid var(--primary-gold);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+        }
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 15px;
+        }
+        input[type="date"], input[type="time"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #c0c0c0;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input[type="date"]:focus, input[type="time"]:focus, textarea:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(0, 45, 98, 0.2);
+            outline: none;
+        }
+        textarea { height: 100px; resize: vertical; }
+        button[type="submit"] {
+            background-color: var(--primary-gold);
+            color: var(--primary-blue);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-transform: uppercase;
+            margin-top: auto; /* Push button to bottom if card is flex column */
+        }
+        button[type="submit"]:hover {
+            background-color: #e6b300;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .main-content, .container, .card {
+            transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+        .fade-out {
+            opacity: 0.3;
+            transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+        .fade-in {
+            opacity: 1;
+            transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-bars menu-icon"></i>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="active"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+            <a href="history.html"><i class="fas fa-history"></i> <span>Outpass History</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <p>&copy; 2024 Amity University</p>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <nav class="top-nav">
+            <img src="logo-amity.png" alt="Amity University Logo" class="college-logo" style="margin-right:24px; height:44px; width:auto;">
+            <div style="flex:1;"></div>
+            <div class="account-dropdown" id="account-dropdown-container">
+                <!-- User info will be populated by JavaScript -->
+            </div>
+            <button id="logout-btn" class="logout-btn">Logout</button>
+        </nav>
+
+        <div class="container">
+            <div class="card">
+                <h3>Apply for Outpass</h3>
+                <form id="outpass-form">
+                    <div class="form-group">
+                        <label for="outpass-date">Date of Outpass</label>
+                        <input type="date" id="outpass-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="outpass-time">Time of Departure</label>
+                        <input type="time" id="outpass-time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="outpass-destination">Destination</label>
+                        <input type="text" id="outpass-destination" placeholder="Where are you going?" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="outpass-reason">Reason for Outpass</label>
+                        <textarea id="outpass-reason" required></textarea>
+                    </div>
+                    <button type="submit">Apply for Outpass</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <!-- Notification System -->
+    <script src="notification-system.js"></script>
+    <script src="sms-service.js"></script>
+    <script src="whatsapp-service.js"></script>
+
+    <script>
+        // --- AUTHENTICATION & SESSION HANDLING ---
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        if (!currentUser) {
+            window.location.href = 'index.html';
+        }
+
+        // --- DYNAMICALLY POPULATE USER INFO DROPDOWN ---
+        function populateUserInfo() {
+            const container = document.getElementById('account-dropdown-container');
+            if (!currentUser) return;
+
+            // Debug: Log current user data
+            console.log('Current user data:', currentUser);
+
+            // Map new field names to old ones for compatibility
+            const displayName = currentUser.name || currentUser.fullName || 'Student';
+            const displayRollNo = currentUser.enrollment || currentUser.rollNo || 'N/A';
+            const displayDegree = currentUser.course || currentUser.degree || 'N/A';
+            const displayDepartment = currentUser.course || currentUser.department || 'N/A';
+            const displayYear = currentUser.year || currentUser.batch || 'N/A';
+            const displayMobile = currentUser.phone || currentUser.mobile || 'N/A';
+
+            container.innerHTML = `
+                <div class="account-info">
+                    <span>${displayName}</span>
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="dropdown-content">
+                    <div class="dropdown-header">
+                        <h4>${displayName}</h4>
+                        <p>${displayRollNo}</p>
+                    </div>
+                    <div class="profile-details">
+                        <p><strong>Degree:</strong> ${displayDegree}</p>
+                        <p><strong>Department:</strong> ${displayDepartment}</p>
+                        <p><strong>Year:</strong> ${displayYear}</p>
+                        <p><strong>Mobile:</strong> ${displayMobile}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- OUTPASS FORM LOGIC ---
+        document.getElementById('outpass-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const date = document.getElementById('outpass-date').value;
+            const time = document.getElementById('outpass-time').value;
+            const reason = document.getElementById('outpass-reason').value;
+
+            const now = new Date();
+            const selectedDateTime = new Date(`${date}T${time}`);
+            if (selectedDateTime < now) {
+                alert("Outpass time cannot be in the past.");
+                return;
+            }
+
+            const today = now.toISOString().split('T')[0];
+            const outpassesRef = firebase.database().ref('outpasses');
+            const snapshot = await outpassesRef.orderByChild('studentUsername').equalTo(currentUser.username).once('value');
+
+            let alreadyApplied = false;
+            snapshot.forEach(child => {
+                if (child.val().date === date) {
+                    alreadyApplied = true;
+                }
+            });
+
+            if (alreadyApplied) {
+                alert("You have already applied for an outpass for this date.");
+                return;
+            }
+
+            const outpassData = {
+                studentId: currentUser.key,
+                studentUsername: currentUser.username,
+                studentName: currentUser.name || currentUser.fullName,
+                enrollment: currentUser.enrollment || currentUser.rollNo,
+                course: currentUser.course || currentUser.department,
+                year: currentUser.year || currentUser.batch,
+                mentorName: currentUser.mentorName,
+                reason: reason,
+                fromDate: date,
+                toDate: date,
+                fromTime: time,
+                toTime: time,
+                destination: document.getElementById('outpass-destination').value || 'Not specified',
+                contactNumber: currentUser.phone || currentUser.mobile || 'Not provided',
+                status: 'pending',
+                submittedAt: new Date().toISOString(),
+                reviewedAt: null,
+                reviewedBy: null,
+                mentorComments: null
+            };
+
+            try {
+                const outpassRef = await outpassesRef.push(outpassData);
+                const outpassId = outpassRef.key;
+                
+                // Send notifications
+                await sendOutpassNotifications('submitted', {
+                    ...outpassData,
+                    outpassId: outpassId
+                });
+                
+                alert("Outpass application submitted successfully!");
+                document.getElementById('outpass-form').reset();
+                // Set date back to today after reset
+                document.getElementById('outpass-date').value = new Date().toISOString().split('T')[0];
+            } catch (error) {
+                console.error("Error submitting outpass:", error);
+                alert("Failed to submit outpass. Please try again.");
+            }
+        });
+
+        // --- NOTIFICATION HELPERS ---
+        async function sendOutpassNotifications(type, outpassData) {
+            try {
+                // Send WhatsApp notification to student
+                if (window.sendOutpassWhatsApp) {
+                    await window.sendOutpassWhatsApp('outpass_submitted', {
+                        studentPhone: outpassData.contactNumber,
+                        studentName: outpassData.studentName,
+                        fromDate: outpassData.fromDate,
+                        outpassId: outpassData.outpassId
+                    });
+                }
+
+                // Find mentor and send notification
+                if (outpassData.mentorName) {
+                    const mentorsRef = firebase.database().ref('mentors');
+                    const mentorSnapshot = await mentorsRef.orderByChild('name').equalTo(outpassData.mentorName).once('value');
+                    
+                    mentorSnapshot.forEach(async (child) => {
+                        const mentor = child.val();
+                        const mentorId = child.key;
+                        
+                        // Create notification for mentor
+                        if (window.NotificationSystem) {
+                            await window.NotificationSystem.createNotification(mentorId, {
+                                type: 'new_outpass_submission',
+                                title: 'New Outpass Request',
+                                message: `${outpassData.studentName} submitted an outpass request for ${outpassData.fromDate}`,
+                                outpassId: outpassData.outpassId,
+                                studentName: outpassData.studentName,
+                                reason: outpassData.reason
+                            });
+                        }
+
+                        // Send WhatsApp to mentor
+                        if (window.sendOutpassWhatsApp && mentor.phone) {
+                            await window.sendOutpassWhatsApp('mentor_notification', {
+                                mentorPhone: mentor.phone,
+                                studentName: outpassData.studentName,
+                                fromDate: outpassData.fromDate,
+                                reason: outpassData.reason
+                            });
+                        }
+                    });
+                }
+
+                console.log('✅ WhatsApp notifications sent successfully');
+            } catch (error) {
+                console.error('❌ Error sending WhatsApp notifications:', error);
+            }
+        }
+
+        // --- INITIALIZATION ---
+        function initializePage() {
+            // Populate user dropdown
+            populateUserInfo();
+
+            // Set min date for date input to today
+            const today = new Date().toISOString().split('T')[0];
+            const outpassDateInput = document.getElementById('outpass-date');
+            outpassDateInput.value = today;
+            outpassDateInput.min = today;
+        }
+
+        // Run initialization on page load
+        document.addEventListener('DOMContentLoaded', initializePage);
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        });
+
+        // Fade-in on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('fade-in');
+            // Add fade-out to all sidebar and top-nav links
+            document.querySelectorAll('.sidebar-nav a, .top-nav a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Only fade if navigating to a different page
+                    if (link.href && link.href !== window.location.href) {
+                        e.preventDefault();
+                        document.body.classList.remove('fade-in');
+                        document.body.classList.add('fade-out');
+                        setTimeout(() => {
+                            window.location = link.href;
+                        }, 400);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Setup</title>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #002D62;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #002D62;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #001F45;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Database Setup for Outpass System</h1>
+        
+        <div class="section">
+            <h3>1. Setup Valid Roll Numbers</h3>
+            <p>Add sample roll numbers that students can use during registration:</p>
+            <button onclick="setupRollNumbers()">Setup Sample Roll Numbers</button>
+            <div id="rollStatus" class="status"></div>
+        </div>
+        
+        <div class="section">
+            <h3>2. Setup Admin Account</h3>
+            <p>Create an admin account for admin login:</p>
+            <input type="text" id="adminUsername" placeholder="Admin Username" value="admin">
+            <input type="password" id="adminPassword" placeholder="Admin Password" value="admin123">
+            <button onclick="setupAdmin()">Create Admin Account</button>
+            <div id="adminStatus" class="status"></div>
+        </div>
+        
+        <div class="section">
+            <h3>3. Test Database Connection</h3>
+            <p>Check if Firebase connection is working:</p>
+            <button onclick="testConnection()">Test Connection</button>
+            <div id="testStatus" class="status"></div>
+        </div>
+        
+        <div class="section">
+            <h3>4. View Database Contents</h3>
+            <p>See what's currently in your database:</p>
+            <button onclick="viewDatabase()">View Database</button>
+            <div id="dbStatus" class="status"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        function updateStatus(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = isError ? 'status error' : 'status success';
+        }
+
+        async function setupRollNumbers() {
+            try {
+                updateStatus('rollStatus', 'Setting up roll numbers...');
+                
+                // Sample roll numbers for testing
+                const rollNumbers = [
+                    'A27701221001',
+                    'A27701221002', 
+                    'A27701221003',
+                    'A27701221004',
+                    'A27701221005',
+                    'A27701221006',
+                    'A27701221007',
+                    'A27701221008',
+                    'A27701221009',
+                    'A27701221010'
+                ];
+
+                const promises = rollNumbers.map(rollNo => 
+                    firebase.database().ref('validRollNumbers/' + rollNo).set(true)
+                );
+
+                await Promise.all(promises);
+                updateStatus('rollStatus', 'Roll numbers setup successfully! Students can now register with these roll numbers: ' + rollNumbers.join(', '));
+                
+            } catch (error) {
+                console.error('Error setting up roll numbers:', error);
+                updateStatus('rollStatus', 'Error setting up roll numbers: ' + error.message, true);
+            }
+        }
+
+        async function setupAdmin() {
+            try {
+                const username = document.getElementById('adminUsername').value.trim();
+                const password = document.getElementById('adminPassword').value.trim();
+                
+                if (!username || !password) {
+                    updateStatus('adminStatus', 'Please enter both username and password', true);
+                    return;
+                }
+
+                updateStatus('adminStatus', 'Creating admin account...');
+                
+                const adminData = {
+                    username: username,
+                    password: password,
+                    role: 'admin',
+                    createdAt: new Date().toISOString()
+                };
+
+                await firebase.database().ref('admins').push(adminData);
+                updateStatus('adminStatus', `Admin account created successfully! Username: ${username}, Password: ${password}`);
+                
+            } catch (error) {
+                console.error('Error setting up admin:', error);
+                updateStatus('adminStatus', 'Error creating admin account: ' + error.message, true);
+            }
+        }
+
+        async function testConnection() {
+            try {
+                updateStatus('testStatus', 'Testing connection...');
+                
+                // Try to write a test value
+                await firebase.database().ref('test').set({
+                    timestamp: new Date().toISOString(),
+                    message: 'Connection test successful'
+                });
+                
+                // Try to read it back
+                const snapshot = await firebase.database().ref('test').once('value');
+                const data = snapshot.val();
+                
+                if (data) {
+                    updateStatus('testStatus', 'Connection test successful! Firebase is working properly.');
+                    // Clean up test data
+                    firebase.database().ref('test').remove();
+                } else {
+                    updateStatus('testStatus', 'Connection test failed - could not read data', true);
+                }
+                
+            } catch (error) {
+                console.error('Connection test error:', error);
+                updateStatus('testStatus', 'Connection test failed: ' + error.message, true);
+            }
+        }
+
+        async function viewDatabase() {
+            try {
+                updateStatus('dbStatus', 'Loading database contents...');
+                
+                const snapshot = await firebase.database().ref().once('value');
+                const data = snapshot.val();
+                
+                if (data) {
+                    let output = '<h4>Database Contents:</h4>';
+                    
+                    if (data.validRollNumbers) {
+                        output += '<p><strong>Valid Roll Numbers:</strong> ' + Object.keys(data.validRollNumbers).join(', ') + '</p>';
+                    }
+                    
+                    if (data.admins) {
+                        const adminCount = Object.keys(data.admins).length;
+                        output += '<p><strong>Admin Accounts:</strong> ' + adminCount + ' found</p>';
+                    }
+                    
+                    if (data.students) {
+                        const studentCount = Object.keys(data.students).length;
+                        output += '<p><strong>Registered Students:</strong> ' + studentCount + ' found</p>';
+                    }
+                    
+                    if (data.outpasses) {
+                        const outpassCount = Object.keys(data.outpasses).length;
+                        output += '<p><strong>Outpass Requests:</strong> ' + outpassCount + ' found</p>';
+                    }
+                    
+                    updateStatus('dbStatus', output);
+                } else {
+                    updateStatus('dbStatus', 'Database is empty. Please run the setup steps above.');
+                }
+                
+            } catch (error) {
+                console.error('Error viewing database:', error);
+                updateStatus('dbStatus', 'Error loading database: ' + error.message, true);
+            }
+        }
+
+        // Auto-test connection on page load
+        window.onload = function() {
+            setTimeout(testConnection, 1000);
+        };
+    </script>
+</body>
+</html>

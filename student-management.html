@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Data Management - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .nav {
+            background-color: #002D62;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .nav-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .amity-logo {
+            height: 44px;
+            width: auto;
+            margin-right: 18px;
+        }
+        
+        .nav-divider {
+            width: 2px;
+            height: 38px;
+            background: #ffc300;
+            margin: 0 18px;
+            border-radius: 2px;
+        }
+        
+        .nav-title {
+            color: white;
+            margin: 0;
+            font-weight: 700;
+            font-size: 28px;
+            text-transform: uppercase;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background-color: #FFC300;
+            color: #002D62;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .card h2 {
+            font-size: 24px;
+            color: #002D62;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .upload-area {
+            border: 3px dashed #002D62;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: #FFC300;
+            background-color: #f9f9f9;
+        }
+        
+        .upload-area.drag-over {
+            border-color: #FFC300;
+            background-color: #fff8e1;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #002D62;
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            font-size: 18px;
+            color: #002D62;
+            font-weight: 600;
+        }
+        
+        .upload-subtext {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .btn {
+            background-color: #FFC300;
+            color: #002D62;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn:hover {
+            background-color: #e6b300;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:disabled {
+            background-color: #ccc;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #FFC300;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .mentor-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #c0c0c0;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .success {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-weight: 600;
+        }
+        
+        .student-preview {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .student-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #FFC300;
+        }
+        
+        .mentor-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .mentor-card.active {
+            border-color: #FFC300;
+            background: #fff8e1;
+        }
+        
+        .mentor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .mentor-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .mentor-avatar {
+            width: 50px;
+            height: 50px;
+            background: #002D62;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .mentor-details h4 {
+            margin: 0;
+            color: #002D62;
+            font-size: 18px;
+        }
+        
+        .mentor-details p {
+            margin: 5px 0 0 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .mentor-stats {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #002D62;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        .mentor-upload-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 2px dashed #ccc;
+            display: none;
+        }
+        
+        .mentor-upload-section.active {
+            display: block;
+            border-color: #FFC300;
+        }
+        
+        .upload-area-small {
+            border: 2px dashed #002D62;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .upload-area-small:hover {
+            border-color: #FFC300;
+            background-color: #f9f9f9;
+        }
+        
+        .toggle-upload-btn {
+            background: linear-gradient(135deg, #002D62, #004080);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-upload-btn:hover {
+            background: linear-gradient(135deg, #004080, #0056b3);
+        }
+        
+        .students-preview {
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <div class="nav">
+        <div class="nav-container">
+            <div class="nav-left">
+                <img src="amity-university.logo.png" alt="Amity University Logo" class="amity-logo">
+                <div class="nav-divider"></div>
+                <h1 class="nav-title">Admin Panel</h1>
+            </div>
+            <div class="nav-links">
+                <a href="admin-dashboard.html" class="nav-link">Dashboard</a>
+                <a href="student-management.html" class="nav-link">Students</a>
+                <a href="index.html" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Mentor Management Section - First Priority -->
+        <div class="card">
+            <h2>�‍🏫 Step 1: Create Mentors First</h2>
+            <p>Before uploading students, you must create mentor accounts. Each mentor will have their own section to upload their assigned students.</p>
+            
+            <form id="mentor-form">
+                <div class="mentor-section">
+                    <div>
+                        <div class="form-group">
+                            <label for="mentor-name">Mentor Name *</label>
+                            <input type="text" id="mentor-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mentor-username">Username *</label>
+                            <input type="text" id="mentor-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mentor-password">Password *</label>
+                            <input type="password" id="mentor-password" required>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label for="mentor-email">Email *</label>
+                            <input type="email" id="mentor-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mentor-phone">Phone</label>
+                            <input type="text" id="mentor-phone">
+                        </div>
+                        <div class="form-group">
+                            <label for="mentor-department">Department *</label>
+                            <input type="text" id="mentor-department" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn">Add Mentor</button>
+            </form>
+        </div>
+
+        <!-- Existing Mentors List -->
+        <div class="card">
+            <h2>📋 Existing Mentors</h2>
+            <div id="mentors-list">
+                <p>Loading mentors...</p>
+            </div>
+        </div>
+
+        <!-- Mentor-Specific Student Upload Sections -->
+        <div class="card">
+            <h2>📊 Step 2: Upload Students for Each Mentor</h2>
+            <p>Select a mentor and upload their assigned students. Students will be automatically assigned to the selected mentor.</p>
+            <div style="background: #e9f7ef; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #28a745;">
+                <h4 style="margin: 0 0 10px 0; color: #155724;">📋 Expected Excel Format:</h4>
+                <p style="margin: 0; color: #155724; font-size: 14px;">
+                    Your Excel file should have these columns:<br>
+                    <strong>ENROLLMENT NO</strong> | <strong>STUDENT NAME</strong> | <strong>Program Name</strong> | <strong>Batch</strong> | <strong>Email Id</strong> | <strong>Contact No.</strong>
+                </p>
+            </div>
+            
+            <div id="mentor-upload-sections">
+                <p>Create mentors first to see upload sections here.</p>
+            </div>
+        </div>
+
+        <!-- Student Preview Section -->
+        <div class="card" id="student-preview-card" style="display: none;">
+            <h2>👥 Student Data Preview</h2>
+            <div id="student-preview" class="student-preview"></div>
+            <button class="btn" id="confirm-upload" onclick="confirmStudentUpload()" style="margin-top: 20px;">Create All Student Accounts</button>
+        </div>
+    </div>
+
+    <script>
+        let parsedStudentData = [];
+        
+        // Initialize page
+        window.addEventListener('load', function() {
+            checkAdminAuth();
+            loadExistingMentors();
+        });
+
+        function checkAdminAuth() {
+            const isAdmin = sessionStorage.getItem('isAdmin');
+            if (!isAdmin) {
+                alert('Access denied. Please log in as admin.');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+        }
+
+        // Load existing mentors and create upload sections
+        async function loadExistingMentors() {
+            try {
+                const snapshot = await firebase.database().ref('mentors').once('value');
+                const mentorsListDiv = document.getElementById('mentors-list');
+                const uploadSectionsDiv = document.getElementById('mentor-upload-sections');
+                
+                if (snapshot.exists()) {
+                    const mentors = snapshot.val();
+                    const mentorKeys = Object.keys(mentors);
+                    
+                    // Display existing mentors
+                    let mentorsHtml = '';
+                    let uploadSectionsHtml = '';
+                    
+                    for (const key of mentorKeys) {
+                        const mentor = mentors[key];
+                        
+                        // Count assigned students
+                        const studentsSnapshot = await firebase.database().ref('students').orderByChild('mentorName').equalTo(mentor.name).once('value');
+                        const studentCount = studentsSnapshot.exists() ? Object.keys(studentsSnapshot.val()).length : 0;
+                        
+                        // Mentor card
+                        mentorsHtml += `
+                            <div class="mentor-card" id="mentor-${key}">
+                                <div class="mentor-header">
+                                    <div class="mentor-info">
+                                        <div class="mentor-avatar">${mentor.name.charAt(0).toUpperCase()}</div>
+                                        <div class="mentor-details">
+                                            <h4>${mentor.name}</h4>
+                                            <p>${mentor.department} • ${mentor.email}</p>
+                                        </div>
+                                    </div>
+                                    <div class="mentor-stats">
+                                        <div class="stat">
+                                            <div class="stat-number">${studentCount}</div>
+                                            <div class="stat-label">Students</div>
+                                        </div>
+                                        <button class="toggle-upload-btn" onclick="toggleMentorUpload('${key}', '${mentor.name}')">
+                                            Upload Students
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mentor-upload-section" id="upload-section-${key}">
+                                    <h4>📁 Upload Students for ${mentor.name}</h4>
+                                    <div class="upload-area-small" onclick="triggerFileInput('${key}')">
+                                        <div style="font-size: 32px; margin-bottom: 10px;">📁</div>
+                                        <div style="font-weight: 600;">Click to upload Excel file</div>
+                                        <div style="font-size: 12px; color: #666; margin-top: 5px;">Expected columns: ENROLLMENT NO, STUDENT NAME, Program Name, Batch, Email Id, Contact No.</div>
+                                        <div style="font-size: 12px; color: #666;">Excel files (.xlsx, .xls) - Max size: 10MB</div>
+                                    </div>
+                                    <input type="file" id="file-input-${key}" accept=".xlsx,.xls" style="display: none;" onchange="handleMentorFile(event, '${key}', '${mentor.name}')" />
+                                    <div class="students-preview" id="preview-${key}"></div>
+                                    <div id="results-${key}" class="results" style="display: none;"></div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    mentorsListDiv.innerHTML = mentorsHtml;
+                    uploadSectionsDiv.innerHTML = mentorsHtml ? '<p><strong>Click "Upload Students" for any mentor to add their students.</strong></p>' : '<p>Create mentors first to see upload sections here.</p>';
+                } else {
+                    mentorsListDiv.innerHTML = '<p>No mentors created yet. Create your first mentor above.</p>';
+                    uploadSectionsDiv.innerHTML = '<p>Create mentors first to see upload sections here.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading mentors:', error);
+                document.getElementById('mentors-list').innerHTML = '<p>Error loading mentors.</p>';
+            }
+        }
+        
+        // Toggle mentor upload section
+        function toggleMentorUpload(mentorKey, mentorName) {
+            const uploadSection = document.getElementById(`upload-section-${mentorKey}`);
+            const mentorCard = document.getElementById(`mentor-${mentorKey}`);
+            
+            // Hide all other upload sections
+            document.querySelectorAll('.mentor-upload-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.mentor-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Show/hide current section
+            if (uploadSection.classList.contains('active')) {
+                uploadSection.classList.remove('active');
+                mentorCard.classList.remove('active');
+            } else {
+                uploadSection.classList.add('active');
+                mentorCard.classList.add('active');
+            }
+        }
+        
+        // Trigger file input for specific mentor
+        function triggerFileInput(mentorKey) {
+            document.getElementById(`file-input-${mentorKey}`).click();
+        }
+        
+        // Handle file upload for specific mentor
+        function handleMentorFile(event, mentorKey, mentorName) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.name.match(/\.(xlsx|xls)$/)) {
+                alert('Please select a valid Excel file (.xlsx or .xls)');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size too large. Please select a file smaller than 10MB.');
+                return;
+            }
+            
+            processExcelFileForMentor(file, mentorKey, mentorName);
+        }
+
+        function handleFile(file) {
+            if (!file.name.match(/\.(xlsx|xls)$/)) {
+                alert('Please select a valid Excel file (.xlsx or .xls)');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size too large. Please select a file smaller than 10MB.');
+                return;
+            }
+            
+            document.getElementById('file-name').textContent = file.name;
+            document.getElementById('file-info').style.display = 'block';
+            
+            // Store file for processing
+            window.selectedFile = file;
+        }
+
+        // Process Excel file for specific mentor
+        function processExcelFileForMentor(file, mentorKey, mentorName) {
+            const resultsDiv = document.getElementById(`results-${mentorKey}`);
+            const previewDiv = document.getElementById(`preview-${mentorKey}`);
+            
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<div style="color: #002D62;">📄 Processing file...</div>';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    // Validate and process data for this mentor
+                    const processedData = validateStudentDataForMentor(jsonData, mentorName);
+                    
+                    if (processedData.length > 0) {
+                        displayStudentPreviewForMentor(processedData, mentorKey, previewDiv);
+                        resultsDiv.innerHTML = `
+                            <div class="success">✅ Successfully processed ${processedData.length} student records for ${mentorName}</div>
+                            <button class="btn" onclick="confirmStudentUploadForMentor('${mentorKey}', '${mentorName}')" style="margin-top: 15px;">
+                                Create ${processedData.length} Student Accounts
+                            </button>
+                        `;
+                        
+                        // Store data for confirmation
+                        window[`parsedData_${mentorKey}`] = processedData;
+                    } else {
+                        resultsDiv.innerHTML = `<div class="error">❌ No valid student data found. Please check your Excel format.</div>`;
+                    }
+                    
+                } catch (error) {
+                    console.error('Error processing file:', error);
+                    resultsDiv.innerHTML = `<div class="error">❌ Error processing file: ${error.message}</div>`;
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // Validate student data for specific mentor
+        function validateStudentDataForMentor(data, mentorName) {
+            const processedData = [];
+            
+            data.forEach((row, index) => {
+                const student = {};
+                let isValid = true;
+                
+                // Map your Excel columns to our system fields
+                const enrollmentNo = row['ENROLLMENT NO'] || row['Enrollment No'] || row['enrollment_no'];
+                const studentName = row['STUDENT NAME'] || row['Student Name'] || row['student_name'];
+                const programName = row['Program Name'] || row['program_name'] || row['Course'];
+                const batch = row['Batch'] || row['batch'] || row['Year'];
+                const emailId = row['Email Id'] || row['email_id'] || row['Email'];
+                const contactNo = row['Contact No.'] || row['contact_no'] || row['Phone'];
+                
+                // Check required fields
+                if (!enrollmentNo || enrollmentNo.toString().trim() === '') {
+                    console.warn(`Row ${index + 1}: Missing Enrollment No`);
+                    isValid = false;
+                }
+                
+                if (!studentName || studentName.toString().trim() === '') {
+                    console.warn(`Row ${index + 1}: Missing Student Name`);
+                    isValid = false;
+                }
+                
+                if (!programName || programName.toString().trim() === '') {
+                    console.warn(`Row ${index + 1}: Missing Program Name`);
+                    isValid = false;
+                }
+                
+                if (!batch || batch.toString().trim() === '') {
+                    console.warn(`Row ${index + 1}: Missing Batch`);
+                    isValid = false;
+                }
+                
+                if (isValid) {
+                    // Map to our system fields
+                    student.enrollment = enrollmentNo.toString().trim();
+                    student.name = studentName.toString().trim();
+                    student.course = programName.toString().trim();
+                    student.year = batch.toString().trim();
+                    student.email = emailId ? emailId.toString().trim() : '';
+                    student.phone = contactNo ? contactNo.toString().trim() : '';
+                    
+                    // Generate username from enrollment number
+                    student.username = student.enrollment.toLowerCase();
+                    student.password = `student@${student.username}`;
+                    student.mentorName = mentorName; // Automatically assign to this mentor
+                    student.isFirstLogin = true;
+                    processedData.push(student);
+                }
+            });
+            
+            return processedData;
+        }
+        
+        // Display student preview for specific mentor
+        function displayStudentPreviewForMentor(students, mentorKey, previewDiv) {
+            let html = '<h5>👥 Students to be created:</h5>';
+            students.forEach((student, index) => {
+                html += `
+                    <div class="student-item" style="margin: 8px 0; padding: 12px; background: white; border-radius: 6px; border-left: 3px solid #FFC300;">
+                        <strong>${student.name}</strong> (${student.enrollment})
+                        <br><small style="color: #666;">Username: ${student.username} | Password: ${student.password}</small>
+                        <br><small style="color: #666;">Course: ${student.course} | Year: ${student.year}</small>
+                    </div>
+                `;
+            });
+            
+            previewDiv.innerHTML = html;
+        }
+        
+        // Confirm student upload for specific mentor
+        async function confirmStudentUploadForMentor(mentorKey, mentorName) {
+            const parsedData = window[`parsedData_${mentorKey}`];
+            if (!parsedData || parsedData.length === 0) {
+                alert('No student data to upload.');
+                return;
+            }
+            
+            const resultsDiv = document.getElementById(`results-${mentorKey}`);
+            resultsDiv.innerHTML = '<div style="color: #002D62;">⏳ Creating student accounts...</div>';
+            
+            try {
+                let successCount = 0;
+                let errorCount = 0;
+                
+                for (const student of parsedData) {
+                    try {
+                        // Create student record in Firebase
+                        await firebase.database().ref('students').push({
+                            username: student.username,
+                            password: student.password,
+                            enrollment: student.enrollment,
+                            name: student.name,
+                            email: student.email,
+                            phone: student.phone,
+                            course: student.course,
+                            year: student.year,
+                            mentorName: student.mentorName,
+                            isFirstLogin: true,
+                            createdAt: new Date().toISOString()
+                        });
+                        successCount++;
+                    } catch (error) {
+                        console.error(`Error creating account for ${student.name}:`, error);
+                        errorCount++;
+                    }
+                }
+                
+                resultsDiv.innerHTML = `
+                    <div class="success">✅ Successfully created ${successCount} student accounts for ${mentorName}</div>
+                    ${errorCount > 0 ? `<div class="error">❌ Failed to create ${errorCount} accounts</div>` : ''}
+                `;
+                
+                // Clear the preview and refresh mentor list
+                document.getElementById(`preview-${mentorKey}`).innerHTML = '';
+                delete window[`parsedData_${mentorKey}`];
+                
+                // Refresh the mentors list to update student counts
+                setTimeout(() => {
+                    loadExistingMentors();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error uploading student data:', error);
+                resultsDiv.innerHTML = '<div class="error">❌ Error creating student accounts. Please try again.</div>';
+            }
+        }
+
+        function validateStudentData(data) {
+            const requiredFields = ['Name', 'Enrollment', 'Email', 'Course', 'Year', 'Mentor'];
+            const processedData = [];
+            
+            data.forEach((row, index) => {
+                const student = {};
+                let isValid = true;
+                
+                // Check required fields
+                requiredFields.forEach(field => {
+                    if (!row[field] || row[field].toString().trim() === '') {
+                        console.warn(`Row ${index + 1}: Missing ${field}`);
+                        isValid = false;
+                    } else {
+                        student[field.toLowerCase()] = row[field].toString().trim();
+                    }
+                });
+                
+                if (isValid) {
+                    // Generate username from enrollment number
+                    student.username = student.enrollment.toLowerCase();
+                    student.password = `student@${student.username}`;
+                    student.phone = row['Phone'] || '';
+                    student.isFirstLogin = true;
+                    processedData.push(student);
+                }
+            });
+            
+            return processedData;
+        }
+
+        function displayStudentPreview(students) {
+            const previewDiv = document.getElementById('student-preview');
+            const previewCard = document.getElementById('student-preview-card');
+            
+            let html = '';
+            students.forEach((student, index) => {
+                html += `
+                    <div class="student-item">
+                        <strong>${student.name}</strong> (${student.enrollment})
+                        <br><small>Username: ${student.username} | Password: ${student.password}</small>
+                        <br><small>Course: ${student.course} | Year: ${student.year} | Mentor: ${student.mentor}</small>
+                    </div>
+                `;
+            });
+            
+            previewDiv.innerHTML = html;
+            previewCard.style.display = 'block';
+        }
+
+        async function confirmStudentUpload() {
+            if (parsedStudentData.length === 0) {
+                alert('No student data to upload.');
+                return;
+            }
+            
+            const confirmBtn = document.getElementById('confirm-upload');
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Creating Accounts...';
+            
+            try {
+                let successCount = 0;
+                let errorCount = 0;
+                
+                for (const student of parsedStudentData) {
+                    try {
+                        // Create student record in Firebase
+                        await firebase.database().ref('students').push({
+                            username: student.username,
+                            password: student.password,
+                            enrollment: student.enrollment,
+                            name: student.name,
+                            email: student.email,
+                            phone: student.phone,
+                            course: student.course,
+                            year: student.year,
+                            mentorName: student.mentor,
+                            isFirstLogin: true,
+                            createdAt: new Date().toISOString()
+                        });
+                        successCount++;
+                    } catch (error) {
+                        console.error(`Error creating account for ${student.name}:`, error);
+                        errorCount++;
+                    }
+                }
+                
+                const resultsDiv = document.getElementById('upload-results');
+                resultsDiv.innerHTML = `
+                    <div class="success">✅ Successfully created ${successCount} student accounts</div>
+                    ${errorCount > 0 ? `<div class="error">❌ Failed to create ${errorCount} accounts</div>` : ''}
+                `;
+                
+                // Clear the preview
+                document.getElementById('student-preview-card').style.display = 'none';
+                parsedStudentData = [];
+                
+            } catch (error) {
+                console.error('Error uploading student data:', error);
+                alert('Error creating student accounts. Please try again.');
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Create All Student Accounts';
+            }
+        }
+
+        // Mentor form submission
+        document.getElementById('mentor-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const mentorData = {
+                name: document.getElementById('mentor-name').value.trim(),
+                username: document.getElementById('mentor-username').value.trim(),
+                password: document.getElementById('mentor-password').value,
+                email: document.getElementById('mentor-email').value.trim(),
+                phone: document.getElementById('mentor-phone').value.trim(),
+                department: document.getElementById('mentor-department').value.trim(),
+                role: 'mentor',
+                createdAt: new Date().toISOString(),
+                students: []
+            };
+            
+            try {
+                // Check if username already exists
+                const snapshot = await firebase.database().ref('mentors').orderByChild('username').equalTo(mentorData.username).once('value');
+                if (snapshot.exists()) {
+                    alert('Username already exists. Please choose a different username.');
+                    return;
+                }
+                
+                // Create mentor account
+                await firebase.database().ref('mentors').push(mentorData);
+                alert('Mentor account created successfully!');
+                
+                // Clear form
+                document.getElementById('mentor-form').reset();
+                
+                // Refresh mentors list
+                loadExistingMentors();
+                
+            } catch (error) {
+                console.error('Error creating mentor account:', error);
+                alert('Error creating mentor account. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Registration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #e0e0e0;
+      color: #333;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .nav {
+      background-color: #002D62;
+      padding: 15px 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      margin-bottom: 40px;
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    .amity-logo {
+      height: 44px;
+      margin-right: 18px;
+    }
+
+    .nav-divider {
+      width: 2px;
+      height: 38px;
+      background: #ffc300;
+      margin: 0 18px;
+      border-radius: 2px;
+    }
+
+    .nav-title {
+      color: white;
+      font-weight: 700;
+      font-size: 28px;
+      text-transform: uppercase;
+    }
+
+    .form-container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      padding: 30px;
+    }
+
+    .form-container h2 {
+      font-size: 26px;
+      color: #002D62;
+      margin-bottom: 30px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #c0c0c0;
+      border-radius: 6px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+      border-color: #1c1a12;
+      outline: none;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper input {
+      padding-right: 42px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+
+    .toggle-password img {
+      width: 24px;
+      height: 24px;
+      opacity: 0.6;
+    }
+
+    .toggle-password img:hover {
+      opacity: 1;
+    }
+
+    button {
+      background-color: #FFC300;
+      color: #002D62;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 700;
+      width: 100%;
+      text-transform: uppercase;
+    }
+
+    button:hover {
+      background-color: #e6b300;
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 25px;
+      text-align: center;
+      color: #002D62;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      color: #FFC300;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<div class="nav">
+  <div class="nav-container">
+    <img src="amity-university.logo.png" alt="Amity University Logo" class="amity-logo">
+    <div class="nav-divider"></div>
+    <h1 class="nav-title">Student Registration</h1>
+  </div>
+</div>
+
+<div class="container">
+  <div class="form-container">
+    <h2>Register as Student</h2>
+    <form id="register-form">
+      <div class="form-group">
+        <label for="reg-rollno">Roll Number</label>
+        <input type="text" id="reg-rollno" required>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-username">Username (Same as Roll Number)</label>
+        <input type="text" id="reg-username" readonly required>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-password">Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="reg-password" required>
+          <span class="toggle-password" id="toggle-password">
+            <img src="eye-icon.png" alt="Show Password" id="eye-icon">
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-email">Email ID</label>
+        <input type="email" id="reg-email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-fullname">Full Name</label>
+        <input type="text" id="reg-fullname" required>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-degree">Degree</label>
+        <select id="reg-degree" required>
+          <option value="">Select Degree</option>
+          <option value="B.Tech">B.Tech</option>
+          <option value="B.Sc">B.Sc</option>
+          <option value="B.Com">B.Com</option>
+          <option value="B.A">B.A</option>
+          <option value="M.Tech">M.Tech</option>
+          <option value="M.Sc">M.Sc</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-department">Department</label>
+        <select id="reg-department" required>
+          <option value="">Select Department</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="AIML">AIML</option>
+          <option value="ECE">ECE</option>
+          <option value="Biotechnology">Biotechnology</option>
+          <option value="Mathematics">Mathematics</option>
+          <option value="Physics">Physics</option>
+          <option value="Chemistry">Chemistry</option>
+          <option value="Pharmacy">Pharmacy</option>
+          <option value="Robotics">Robotics</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-year">Year</label>
+        <select id="reg-year" required>
+          <option value="">Select Year</option>
+          <option value="1">First Year</option>
+          <option value="2">Second Year</option>
+          <option value="3">Third Year</option>
+          <option value="4">Fourth Year</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="reg-mobile">Mobile Number</label>
+        <input type="text" id="reg-mobile" required pattern="\d{10}" maxlength="10" title="Enter a 10-digit mobile number">
+      </div>
+
+      <div class="form-group">
+        <label for="reg-mentor">Select Mentor</label>
+        <select id="reg-mentor" required>
+          <option value="">Select Mentor</option>
+          <option value="Dr. Sharma">Dr. Sharma</option>
+          <option value="Prof. Gupta">Prof. Gupta</option>
+          <option value="Ms. Verma">Ms. Verma</option>
+        </select>
+      </div>
+
+      <button type="submit">Register</button>
+    </form>
+
+    <a href="student-login.html" class="back-link">Already have an account? Login here</a>
+  </div>
+</div>
+
+<script>
+  // Autofill username as roll number
+  document.getElementById('reg-rollno').addEventListener('input', function () {
+    document.getElementById('reg-username').value = this.value.trim();
+  });
+
+  // Show/hide password toggle
+  document.getElementById('toggle-password').addEventListener('click', function () {
+    const pwd = document.getElementById('reg-password');
+    const icon = document.getElementById('eye-icon');
+    if (pwd.type === 'password') {
+      pwd.type = 'text';
+      icon.style.opacity = '1';
+    } else {
+      pwd.type = 'password';
+      icon.style.opacity = '0.6';
+    }
+  });
+
+  // Handle form submission
+  // Check Firebase connection on page load
+  window.addEventListener('load', function() {
+    if (typeof firebase === 'undefined') {
+      alert('Firebase is not loaded. Please check your internet connection and refresh the page.');
+      return;
+    }
+    console.log('Firebase loaded successfully');
+  });
+
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const rollNo = document.getElementById('reg-rollno').value.trim();
+    const username = rollNo;
+    const password = document.getElementById('reg-password').value;
+    const email = document.getElementById('reg-email').value.trim();
+    const fullName = document.getElementById('reg-fullname').value.trim();
+    const degree = document.getElementById('reg-degree').value;
+    const department = document.getElementById('reg-department').value;
+    const year = document.getElementById('reg-year').value;
+    const mobile = document.getElementById('reg-mobile').value.trim();
+    const mentor = document.getElementById('reg-mentor').value;
+
+    // Validation
+    if (!rollNo || !password || !email || !fullName || !mobile) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    // Show loading state
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    submitButton.textContent = 'Registering...';
+    submitButton.disabled = true;
+
+    try {
+      console.log('Checking roll number:', rollNo);
+      
+      if (typeof firebase === 'undefined') {
+        throw new Error('Firebase is not loaded');
+      }
+
+      const rollCheck = await firebase.database().ref('validRollNumbers/' + rollNo).once('value');
+      console.log('Roll number check completed');
+      
+      if (!rollCheck.exists()) {
+        alert('Roll number not found in the system. Please contact administrator to add your roll number.');
+        return;
+      }
+
+      console.log('Checking for existing registration');
+      const existing = await firebase.database().ref('students').orderByChild('username').equalTo(username).once('value');
+      
+      if (existing.exists()) {
+        alert('This roll number is already registered. Please use the login page instead.');
+        return;
+      }
+
+      console.log('Creating new student record');
+      const newStudent = {
+        username,
+        password,
+        email,
+        fullName,
+        rollNo,
+        degree,
+        department,
+        year,
+        mobile,
+        mentor,
+        registeredAt: new Date().toISOString()
+      };
+
+      await firebase.database().ref('students').push(newStudent);
+      console.log('Registration completed successfully');
+
+      alert('Registration successful! You can now login with your roll number and password.');
+      document.getElementById('register-form').reset();
+      
+      // Redirect to login page after 2 seconds
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 2000);
+
+    } catch (error) {
+      console.error('Registration Error:', error);
+      let errorMessage = 'Registration failed. ';
+      
+      if (error.message.includes('network')) {
+        errorMessage += 'Please check your internet connection.';
+      } else if (error.message.includes('permission')) {
+        errorMessage += 'Database access denied. Please contact administrator.';
+      } else {
+        errorMessage += 'Please try again or contact support.';
+      }
+      
+      alert(errorMessage);
+    } finally {
+      // Reset button state
+      submitButton.textContent = originalText;
+      submitButton.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>

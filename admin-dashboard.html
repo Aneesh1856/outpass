@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .nav {
+            background-color: #002D62;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .amity-logo {
+            height: 44px;
+            width: auto;
+            margin-right: 18px;
+            display: block;
+        }
+        
+        .nav-divider {
+            width: 2px;
+            height: 38px;
+            background: #ffc300;
+            margin: 0 18px;
+            border-radius: 2px;
+            display: block;
+        }
+        
+        .nav-title {
+            color: white;
+            margin: 0;
+            font-weight: 700;
+            font-size: 28px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-links {
+            margin-left: auto;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 15px;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #c0c0c0;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #1c1a12;
+            box-shadow: 0 0 0 0.5px rgba(14, 14, 14, 0.3);
+            outline: none;
+        }
+        
+        button, .logout-btn {
+            background-color: #FFC300;
+            color: #002D62 !important;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 700;
+            transition: background-color 0.3s ease, transform 0.2s cubic-bezier(.4,1.5,.5,1), box-shadow 0.3s ease;
+            width: 100%;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        
+        button:hover, .logout-btn:hover {
+            background-color: #e6b300;
+            color: #002D62 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .outpass-list {
+            margin-top: 20px;
+        }
+        
+        .outpass-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .outpass-item h4 {
+            margin-top: 0;
+        }
+        
+        .status-pending {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        
+        .status-approved {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .status-rejected {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .admin-actions button {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        
+        .approve-btn {
+            background-color: #27ae60;
+        }
+        
+        .approve-btn:hover {
+            background-color: #219653;
+        }
+        
+        .reject-btn {
+            background-color: #e74c3c;
+        }
+        
+        .reject-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .admin-comment {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        a.logout-btn {
+            text-decoration: none;
+        }
+        
+        /* Footer Styles */
+        .main-footer {
+            background-color: #002D62;
+            color: #fff;
+            padding: 40px 0 20px 0;
+            margin-top: 40px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 30px;
+            padding: 0 20px;
+        }
+        .footer-column {
+            flex: 1 1 250px;
+            min-width: 220px;
+            margin-bottom: 20px;
+        }
+        .footer-column h3, .footer-column .social-heading {
+            color: #FFC300;
+            font-size: 20px;
+            margin-bottom: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .footer-column p, .footer-column address, .footer-column a {
+            color: #fff;
+            font-size: 15px;
+            margin: 6px 0;
+            text-decoration: none;
+        }
+        .footer-column a:hover {
+            color: #FFC300;
+            text-decoration: underline;
+        }
+        .copyright-section p {
+            margin: 0 0 8px 0;
+            font-size: 15px;
+        }
+        .social-icons {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+        }
+        .social-icons a {
+            color: #fff;
+            font-size: 20px;
+            transition: color 0.3s;
+        }
+        .social-icons a:hover {
+            color: #FFC300;
+        }
+        .footer-column address {
+            font-style: normal;
+            line-height: 1.6;
+        }
+        @media (max-width: 900px) {
+            .footer-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .footer-column {
+                min-width: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <!-- Notification System -->
+    <script src="notification-system.js"></script>
+    <script src="sms-service.js"></script>
+    <script src="whatsapp-service.js"></script>
+    <div class="nav">
+        <div class="container nav-container">
+            <img src="amity-university.logo.png" alt="Amity University Logo" class="amity-logo">
+            <div class="nav-divider"></div>
+            <h1 class="nav-title">Admin Dashboard</h1>
+            <div class="nav-links">
+                <a href="admin-login.html" id="logout-btn" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- System Overview -->
+        <div class="card">
+            <h3>📊 System Overview</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 32px; font-weight: bold; color: #002D62;" id="total-students">0</div>
+                    <div style="color: #666; margin-top: 5px;">Total Students</div>
+                </div>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 32px; font-weight: bold; color: #002D62;" id="total-mentors">0</div>
+                    <div style="color: #666; margin-top: 5px;">Total Mentors</div>
+                </div>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 32px; font-weight: bold; color: #FFC300;" id="pending-outpasses">0</div>
+                    <div style="color: #666; margin-top: 5px;">Pending Outpasses</div>
+                </div>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 32px; font-weight: bold; color: #28a745;" id="approved-today">0</div>
+                    <div style="color: #666; margin-top: 5px;">Approved Today</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <h3>🚀 Quick Actions</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                <a href="student-management.html" style="text-decoration: none; color: inherit;">
+                    <div style="background: linear-gradient(135deg, #002D62, #004080); color: white; padding: 25px; border-radius: 12px; text-align: center; transition: transform 0.3s ease;">
+                        <div style="font-size: 24px; margin-bottom: 10px;">👥</div>
+                        <div style="font-size: 18px; font-weight: 600;">Manage Students</div>
+                        <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Upload Excel, Create Accounts</div>
+                    </div>
+                </a>
+                
+                <div onclick="createMentor()" style="background: linear-gradient(135deg, #FFC300, #e6b300); color: #002D62; padding: 25px; border-radius: 12px; text-align: center; cursor: pointer; transition: transform 0.3s ease;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">👨‍🏫</div>
+                    <div style="font-size: 18px; font-weight: 600;">Add Mentor</div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Create New Mentor Account</div>
+                </div>
+                
+                <div onclick="viewReports()" style="background: linear-gradient(135deg, #28a745, #218838); color: white; padding: 25px; border-radius: 12px; text-align: center; cursor: pointer; transition: transform 0.3s ease;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">📈</div>
+                    <div style="font-size: 18px; font-weight: 600;">View Reports</div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Outpass Analytics & Stats</div>
+                </div>
+                
+                <div onclick="systemSettings()" style="background: linear-gradient(135deg, #6c757d, #545b62); color: white; padding: 25px; border-radius: 12px; text-align: center; cursor: pointer; transition: transform 0.3s ease;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">⚙️</div>
+                    <div style="font-size: 18px; font-weight: 600;">System Settings</div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Configure System Options</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+            <h3>📋 Recent Activity</h3>
+            <div id="recent-activity" style="margin-top: 20px;">
+                <p>Loading recent activity...</p>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-column copyright-section">
+                <p>&copy; <span id="current-year"></span> Your Institution Name. All Rights Reserved.</p>
+                <p>Student Outpass System</p>
+            </div>
+            <div class="footer-column quick-links-section">
+                <div class="social-icons">
+                    <a href="#" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-column contact-social-section">
+                <h3>Contact Us</h3>
+                <p>Email: <a href="mailto:amitybengaluru@gmail.com">amitybengaluru@gmail.com</a></p>
+                <p>Phone: <a href="tel:+911234567890">+91 12345 67890</a></p>
+                <address>
+                    Amity University Bengaluru<br>
+                    Road, NH-207, opposite to the office of Deputy Commissioner, Devanahalli, Doddaballapura, Bengaluru,<br>
+                    Karnataka, 562110
+                </address>
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYearElement = document.getElementById('current-year');
+            if (currentYearElement) {
+                currentYearElement.textContent = new Date().getFullYear();
+            }
+            
+            // Check if Firebase is loaded
+            if (typeof firebase === 'undefined') {
+                showError('Firebase not loaded. Please check your internet connection and refresh the page.');
+                return;
+            }
+            
+            // Verify admin authentication
+            checkAdminAuth();
+        });
+        
+        // Check if admin is properly authenticated
+        function checkAdminAuth() {
+            const isAdmin = sessionStorage.getItem('isAdmin');
+            const adminData = sessionStorage.getItem('adminData');
+            
+            if (!isAdmin || !adminData) {
+                console.error('Admin not authenticated. Redirecting to login.');
+                sessionStorage.clear(); // Clear any partial session data
+                window.location.href = 'admin-login.html';
+                return;
+            }
+            
+            try {
+                // Parse admin data and display welcome message
+                const admin = JSON.parse(adminData);
+                const adminNameElement = document.querySelector('.admin-name');
+                if (adminNameElement) {
+                    adminNameElement.textContent = admin.username || 'Admin';
+                }
+                
+                // Load dashboard data
+                loadAdminDashboard();
+                loadSystemStats();
+                
+            } catch (error) {
+                console.error('Error parsing admin data:', error);
+                showError('Session error. Please login again.');
+                setTimeout(() => {
+                    sessionStorage.clear();
+                    window.location.href = 'admin-login.html';
+                }, 2000);
+            }
+        }
+        
+        // Display error messages
+        function showError(message) {
+            // Create error notification if it doesn't exist
+            if (!document.getElementById('error-notification')) {
+                const errorDiv = document.createElement('div');
+                errorDiv.id = 'error-notification';
+                errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background-color: #f44336; color: white; padding: 15px; border-radius: 5px; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.2);';
+                document.body.appendChild(errorDiv);
+            }
+            
+            // Update error message
+            const errorElement = document.getElementById('error-notification');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Load admin dashboard
+        function loadAdminDashboard() {
+            // Load pending outpasses
+            firebase.database().ref('outpasses').orderByChild('status').equalTo('Pending').once('value')
+                .then(snapshot => {
+                    const adminOutpassList = document.getElementById('admin-outpass-list');
+                    
+                    if (!snapshot.exists()) {
+                        adminOutpassList.innerHTML = '<p>No pending outpass requests found.</p>';
+                    } else {
+                        adminOutpassList.innerHTML = '';
+                        const pendingOutpasses = snapshot.val();
+                        
+                        Object.keys(pendingOutpasses).forEach(key => {
+                            const outpass = pendingOutpasses[key];
+                            
+                            const outpassItem = document.createElement('div');
+                            outpassItem.className = 'outpass-item';
+                            outpassItem.innerHTML = `
+                                <h4>Outpass #${key} - ${outpass.studentName}</h4>
+                                <p><strong>Roll No:</strong> ${outpass.rollNo}</p>
+                                <p><strong>Department:</strong> ${outpass.department}</p>
+                                <p><strong>Date:</strong> ${outpass.date}</p>
+                                <p><strong>Departure Time:</strong> ${outpass.departureTime}</p>
+                                <p><strong>Reason:</strong> ${outpass.reason}</p>
+                                <p><strong>Applied On:</strong> ${outpass.appliedDate}</p>
+                                <div class="admin-actions">
+                                    <button class="approve-btn" data-id="${key}">Approve</button>
+                                    <button class="reject-btn" data-id="${key}">Reject</button>
+                                    <input type="text" placeholder="Add comment (optional)" data-id="${key}" class="admin-comment">
+                                </div>
+                            `;
+                            
+                            adminOutpassList.appendChild(outpassItem);
+                        });
+                    }
+                    
+                    // Add event listeners for admin actions
+                    document.querySelectorAll('.approve-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const id = e.target.getAttribute('data-id');
+                            updateOutpassStatus(id, 'Approved');
+                        });
+                    });
+                    
+                    document.querySelectorAll('.reject-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const id = e.target.getAttribute('data-id');
+                            updateOutpassStatus(id, 'Rejected');
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading pending outpasses:", error);
+                });
+            
+            // Load all outpasses
+            firebase.database().ref('outpasses').once('value')
+                .then(snapshot => {
+                    const allOutpassList = document.getElementById('all-outpass-list');
+                    
+                    if (!snapshot.exists()) {
+                        allOutpassList.innerHTML = '<p>No outpass records found.</p>';
+                    } else {
+                        allOutpassList.innerHTML = '';
+                        const allOutpasses = snapshot.val();
+                        
+                        Object.keys(allOutpasses).forEach(key => {
+                            const outpass = allOutpasses[key];
+                            const statusClass = `status-${outpass.status.toLowerCase()}`;
+                            
+                            const outpassItem = document.createElement('div');
+                            outpassItem.className = 'outpass-item';
+                            outpassItem.innerHTML = `
+                                <h4>Outpass #${key} - ${outpass.studentName}</h4>
+                                <p><strong>Roll No:</strong> ${outpass.rollNo}</p>
+                                <p><strong>Department:</strong> ${outpass.department}</p>
+                                <p><strong>Date:</strong> ${outpass.date}</p>
+                                <p><strong>Status:</strong> <span class="${statusClass}">${outpass.status}</span></p>
+                                ${outpass.comment ? `<p><strong>Comment:</strong> ${outpass.comment}</p>` : ''}
+                            `;
+                            
+                            allOutpassList.appendChild(outpassItem);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error loading all outpasses:", error);
+                });
+        }
+
+        // Update outpass status
+        async function updateOutpassStatus(id, status) {
+            try {
+                const updates = {
+                    status: status,
+                    reviewedAt: new Date().toISOString(),
+                    reviewedBy: 'Admin'
+                };
+                
+                // Get comment if exists
+                const commentInput = document.querySelector(`.admin-comment[data-id="${id}"]`);
+                if (commentInput && commentInput.value) {
+                    updates.comment = commentInput.value;
+                }
+                
+                // Get the outpass data first for WhatsApp notification
+                const outpassSnapshot = await firebase.database().ref(`outpasses/${id}`).once('value');
+                const outpassData = outpassSnapshot.val();
+                
+                // Update the status in Firebase
+                await firebase.database().ref(`outpasses/${id}`).update(updates);
+                
+                // Send WhatsApp notification to student
+                if (window.sendOutpassWhatsApp && outpassData) {
+                    console.log(`📱 Sending WhatsApp notification for ${status.toLowerCase()} outpass`);
+                    
+                    const whatsappType = status.toLowerCase() === 'approved' ? 'outpass_approved' : 'outpass_rejected';
+                    
+                    await window.sendOutpassWhatsApp(whatsappType, {
+                        studentPhone: outpassData.contactNumber || outpassData.phone,
+                        studentName: outpassData.studentName,
+                        fromDate: outpassData.fromDate || outpassData.date,
+                        mentorName: 'Admin',
+                        comments: updates.comment || (status === 'Approved' ? 'Your outpass has been approved!' : 'Please contact admin for details'),
+                        reason: status === 'Rejected' ? (updates.comment || 'Please contact admin') : undefined
+                    });
+                    
+                    console.log('✅ WhatsApp notification sent successfully');
+                }
+                
+                // Reload the dashboard
+                loadAdminDashboard();
+                
+            } catch (error) {
+                console.error("Error updating outpass status:", error);
+                console.error("❌ Error details:", error);
+                alert('Failed to update outpass status. Please try again.');
+            }
+        }
+
+        // Load system statistics
+        async function loadSystemStats() {
+            try {
+                // Count total students
+                const studentsSnapshot = await firebase.database().ref('students').once('value');
+                const totalStudents = studentsSnapshot.exists() ? Object.keys(studentsSnapshot.val()).length : 0;
+                document.getElementById('total-students').textContent = totalStudents;
+                
+                // Count total mentors
+                const mentorsSnapshot = await firebase.database().ref('mentors').once('value');
+                const totalMentors = mentorsSnapshot.exists() ? Object.keys(mentorsSnapshot.val()).length : 0;
+                document.getElementById('total-mentors').textContent = totalMentors;
+                
+                // Count pending outpasses
+                const pendingSnapshot = await firebase.database().ref('outpasses').orderByChild('status').equalTo('pending').once('value');
+                const pendingOutpasses = pendingSnapshot.exists() ? Object.keys(pendingSnapshot.val()).length : 0;
+                document.getElementById('pending-outpasses').textContent = pendingOutpasses;
+                
+                // Count approved today
+                const today = new Date().toISOString().split('T')[0];
+                const approvedSnapshot = await firebase.database().ref('outpasses').orderByChild('status').equalTo('approved').once('value');
+                let approvedToday = 0;
+                if (approvedSnapshot.exists()) {
+                    const approved = approvedSnapshot.val();
+                    approvedToday = Object.values(approved).filter(outpass => 
+                        outpass.reviewedAt && outpass.reviewedAt.startsWith(today)
+                    ).length;
+                }
+                document.getElementById('approved-today').textContent = approvedToday;
+                
+            } catch (error) {
+                console.error('Error loading system stats:', error);
+            }
+        }
+        
+        // Load recent activity
+        async function loadRecentActivity() {
+            try {
+                const recentActivityDiv = document.getElementById('recent-activity');
+                let activities = [];
+                
+                // Get recent student registrations
+                const studentsSnapshot = await firebase.database().ref('students').orderByChild('createdAt').limitToLast(5).once('value');
+                if (studentsSnapshot.exists()) {
+                    Object.values(studentsSnapshot.val()).forEach(student => {
+                        activities.push({
+                            type: 'student_created',
+                            message: `New student account created: ${student.name} (${student.enrollment})`,
+                            timestamp: student.createdAt
+                        });
+                    });
+                }
+                
+                // Get recent outpass submissions
+                const outpassesSnapshot = await firebase.database().ref('outpasses').orderByChild('submittedAt').limitToLast(5).once('value');
+                if (outpassesSnapshot.exists()) {
+                    Object.values(outpassesSnapshot.val()).forEach(outpass => {
+                        activities.push({
+                            type: 'outpass_submitted',
+                            message: `Outpass submitted by ${outpass.studentName} (${outpass.enrollment})`,
+                            timestamp: outpass.submittedAt
+                        });
+                    });
+                }
+                
+                // Sort by timestamp (most recent first)
+                activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                if (activities.length > 0) {
+                    const activityHtml = activities.slice(0, 10).map(activity => `
+                        <div style="padding: 12px; border-left: 4px solid #FFC300; background: #f8f9fa; margin-bottom: 10px; border-radius: 4px;">
+                            <div style="font-weight: 600; color: #002D62;">${activity.message}</div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                                ${new Date(activity.timestamp).toLocaleString()}
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    recentActivityDiv.innerHTML = activityHtml;
+                } else {
+                    recentActivityDiv.innerHTML = '<p>No recent activity found.</p>';
+                }
+                
+            } catch (error) {
+                console.error('Error loading recent activity:', error);
+                document.getElementById('recent-activity').innerHTML = '<p>Error loading recent activity.</p>';
+            }
+        }
+        
+        // Quick action functions
+        function createMentor() {
+            window.location.href = 'student-management.html#mentor-section';
+        }
+        
+        function viewReports() {
+            alert('Reports feature coming soon!');
+        }
+        
+        function systemSettings() {
+            alert('System settings feature coming soon!');
+        }
+        
+        // Update loadAdminDashboard to call new functions
+        function loadAdminDashboard() {
+            loadRecentActivity();
+        }
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            sessionStorage.removeItem('isAdmin');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

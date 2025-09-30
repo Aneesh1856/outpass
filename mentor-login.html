@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .nav {
+            background-color: #002D62;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .amity-logo {
+            height: 44px;
+            width: auto;
+            margin-right: 18px;
+            display: block;
+        }
+        
+        .nav-divider {
+            width: 2px;
+            height: 38px;
+            background: #ffc300;
+            margin: 0 18px;
+            border-radius: 2px;
+            display: block;
+        }
+        
+        .nav-title {
+            color: white;
+            margin: 0;
+            font-weight: 700;
+            font-size: 28px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .form-container h2 {
+            font-size: 26px;
+            color: #002D62;
+            margin-bottom: 30px;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 15px;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #c0c0c0;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #1c1a12;
+            box-shadow: 0 0 0 0.5px rgba(14, 14, 14, 0.3);
+            outline: none;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 42px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .toggle-password img {
+            width: 24px;
+            height: 24px;
+            opacity: 0.6;
+        }
+
+        .toggle-password img:hover {
+            opacity: 1;
+        }
+        
+        button {
+            background-color: #FFC300;
+            color: #002D62;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 700;
+            transition: background-color 0.3s ease, transform 0.2s cubic-bezier(.4,1.5,.5,1), box-shadow 0.3s ease;
+            width: 100%;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        button:hover {
+            background-color: #e6b300;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .back-links {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .back-link {
+            color: #002D62;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: color 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: #FFC300;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <div class="nav">
+        <div class="nav-container">
+            <img src="amity-university.logo.png" alt="Amity University Logo" class="amity-logo">
+            <div class="nav-divider"></div>
+            <h1 class="nav-title">Mentor Login</h1>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="form-container">
+            <h2 class="text-center">Mentor Login</h2>
+            <form id="mentor-login-form">
+                <div class="form-group">
+                    <label for="mentor-username">Username</label>
+                    <input type="text" id="mentor-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="mentor-password">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="mentor-password" required>
+                        <span class="toggle-password" id="toggle-password">
+                            <img src="eye-icon.png" alt="Show Password" id="eye-icon">
+                        </span>
+                    </div>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <div class="text-center">
+                <div class="back-links">
+                    <a href="index.html" class="back-link">Student Login</a>
+                    <a href="admin-login.html" class="back-link">Admin Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Show/hide password toggle
+        document.getElementById('toggle-password').addEventListener('click', function () {
+            const pwd = document.getElementById('mentor-password');
+            const icon = document.getElementById('eye-icon');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                icon.style.opacity = '1';
+            } else {
+                pwd.type = 'password';
+                icon.style.opacity = '0.6';
+            }
+        });
+
+        // Check Firebase connection on page load
+        window.addEventListener('load', function() {
+            if (typeof firebase === 'undefined') {
+                alert('Firebase is not loaded. Please check your internet connection and refresh the page.');
+                return;
+            }
+            console.log('Firebase loaded successfully for mentor login');
+        });
+
+        // Login logic
+        document.getElementById('mentor-login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('mentor-username').value.trim();
+            const password = document.getElementById('mentor-password').value;
+            
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+            
+            // Show loading state
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Logging in...';
+            submitButton.disabled = true;
+            
+            try {
+                console.log('Attempting to login mentor:', username);
+                
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase is not loaded');
+                }
+                
+                // Query the database for the mentor
+                const snapshot = await firebase.database().ref('mentors').orderByChild('username').equalTo(username).once('value');
+                console.log('Mentor database query completed');
+                
+                if (snapshot.exists()) {
+                    const mentorData = snapshot.val();
+                    const mentorKey = Object.keys(mentorData)[0];
+                    const mentor = mentorData[mentorKey];
+                    console.log('Mentor found:', mentor.username);
+                    
+                    if (mentor.password === password) {
+                        console.log('Password match, redirecting to mentor dashboard');
+                        // Store mentor information in sessionStorage
+                        sessionStorage.setItem('isMentor', 'true');
+                        sessionStorage.setItem('mentorKey', mentorKey);
+                        sessionStorage.setItem('mentorData', JSON.stringify({
+                            username: mentor.username,
+                            name: mentor.name,
+                            email: mentor.email,
+                            department: mentor.department,
+                            role: mentor.role || 'mentor'
+                        }));
+                        window.location.href = 'mentor-dashboard.html';
+                    } else {
+                        alert('Invalid password. Please try again.');
+                    }
+                } else {
+                    alert('Mentor not found. Please check your username or contact the administrator.');
+                }
+            } catch (error) {
+                console.error("Mentor login error:", error);
+                let errorMessage = 'Login failed. ';
+                
+                if (error.message.includes('network')) {
+                    errorMessage += 'Please check your internet connection.';
+                } else if (error.message.includes('permission')) {
+                    errorMessage += 'Database access denied. Please contact system administrator.';
+                } else {
+                    errorMessage += 'Please try again or contact the administrator.';
+                }
+                
+                alert(errorMessage);
+            } finally {
+                // Reset button state
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
