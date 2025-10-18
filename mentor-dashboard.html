@@ -548,6 +548,88 @@
         .close-history:hover {
             opacity: 1;
         }
+
+        /* Footer Styles */
+        .main-footer {
+            background-color: #002D62;
+            color: #fff;
+            padding: 40px 0 20px 0;
+            margin-top: 40px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 30px;
+            padding: 0 20px;
+        }
+        .footer-column {
+            flex: 1 1 250px;
+            min-width: 220px;
+            margin-bottom: 20px;
+        }
+        .footer-column h3, .footer-column .social-heading {
+            color: #FFC300;
+            font-size: 20px;
+            margin-bottom: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .footer-column p, .footer-column address, .footer-column a {
+            color: #fff;
+            font-size: 15px;
+            margin: 6px 0;
+            text-decoration: none;
+        }
+        .footer-column a:hover {
+            color: #FFC300;
+            text-decoration: underline;
+        }
+        .copyright-section {
+            text-align: center;
+            border-top: 1px solid rgba(255, 195, 0, 0.3);
+            margin-top: 30px;
+            padding-top: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        .copyright-section p {
+            margin: 0 0 8px 0;
+            font-size: 15px;
+        }
+        .social-icons {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+        }
+        .social-icons a {
+            color: #fff;
+            font-size: 20px;
+            transition: color 0.3s;
+        }
+        .social-icons a:hover {
+            color: #FFC300;
+        }
+        .footer-column address {
+            font-style: normal;
+            line-height: 1.6;
+        }
+        @media (max-width: 900px) {
+            .footer-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .footer-column {
+                min-width: 0;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1063,6 +1145,38 @@
                 closeStudentHistory();
             }
         }
+    </script>
+
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>About OutPass</h3>
+                <p>OutPass is a comprehensive student outpass management system designed to streamline the process of requesting, approving, and tracking student outpasses with real-time notifications.</p>
+            </div>
+            
+            <div class="footer-column contact-social-section">
+                <h3>Contact Us</h3>
+                <p>Email: <a href="mailto:amitybengaluru@gmail.com">amitybengaluru@gmail.com</a></p>
+                <p>Phone: <a href="tel:+911234567890">+91 12345 67890</a></p>
+                <address>
+                    Amity University Bengaluru<br>
+                    Road, NH-207, opposite to the office of Deputy Commissioner, Devanahalli, Doddaballapura, Bengaluru,<br>
+                    Karnataka, 562110
+                </address>
+            </div>
+        </div>
+        <div class="copyright-section">
+            <p>&copy; <span id="current-year"></span> Amity University. All Rights Reserved. | OutPass Management System</p>
+        </div>
+    </footer>
+    <script>
+        // Set current year in footer
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYearElement = document.getElementById('current-year');
+            if (currentYearElement) {
+                currentYearElement.textContent = new Date().getFullYear();
+            }
+        });
     </script>
 </body>
 </html>
